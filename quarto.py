@@ -11,7 +11,9 @@ def quarto():
         
         #Basic data setup and class assignment
         player_1 = GamePlayer()
+        player_1.player_num = "1"
         player_2 = GamePlayer()
+        player_2.player_num = "2"
         game_state = GameState()
         game_status = GameStatus.PLAYING
 
@@ -44,6 +46,6 @@ def quarto():
             else:
                 turn_player = player_2
 
-        signal_end_of_game(game_status, game_state, player_1, player_2)
+        signal_end_of_game(game_status, game_state, player_1, player_2, turn_player)
 
 quarto()

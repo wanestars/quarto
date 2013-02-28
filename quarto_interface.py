@@ -19,7 +19,7 @@ def make_matrix(row, column, default_value):
 
 # Display available pieces, piece to move, and the board
 def display_game_state(game_state):
-    name = list('SEAN')
+    name = list('STAN')
     available_pieces = game_state.get_available_pieces()
     square_pieces = game_state.get_squares()
     current_piece = binary(game_state.get_current_piece())
@@ -98,7 +98,8 @@ def signal_bad_move(move, move_status, current_player):
 
 
 # Signal end of game and ask if they want to play another
-def signal_end_of_game(game_status, game_state, player_1, player_2):
+def signal_end_of_game(game_status, game_state, player_1,
+                       player_2, current_player):
     player_1.game_over(game_state)
     player_2.game_over(game_state)
     if game_status == GameStatus.QUITTING:
@@ -106,7 +107,7 @@ def signal_end_of_game(game_status, game_state, player_1, player_2):
     elif game_status == GameStatus.TIE:
         print "Game over - it's a tie."
     elif game_status == GameStatus.WIN:
-        print "Game over - it's a win."
+        print "Game over - Player "+current_player.player_num+" wins!."
     else:
         print "Game over - unknown reason"
 
