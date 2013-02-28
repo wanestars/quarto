@@ -24,6 +24,7 @@ class GamePlayer():
     def game_over(self, game_status):
         if self.type == self.NETWORK_HOST:
             signal_host_game_over(self, game_status)
+            self.connection.close()
         if self.type == self.NETWORK_CLIENT:
             signal_client_game_over(self, game_status)
     def set_type(self, new_type):
@@ -75,10 +76,11 @@ def get_computer_move(game_state):
     for move in range(len(squares)):
         if squares[move] == GameState.EMPTY:
             possible_move.append(move)
-    random_piece_index = random.randrange(len(possible_piece))
-    random_move_index = random.randrange(len(possible_move))
-    next_piece = possible_piece[random_piece_index]
-    next_move = possible_move[random_move_index]
+    if len(possible_piece) == 0:
+        next_piece = -1
+    else:
+        next_piece = random.choice(possible_piece)
+    next_move = random.choice(possible_move)
     next_move_row = next_move / 4
     next_move_col = next_move % 4
     computer_move = GameMove()

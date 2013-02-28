@@ -128,6 +128,8 @@ def determine_move(pre_game_state, post_game_state):
         elif (pre_game_state_squares[square] != post_game_state_squares[square] and
               pre_game_state_squares[square] != GameState.EMPTY):
             cheating_flag = True
+    if len(move_squares_changes) == 0 and len(move_pieces_changes)==0:
+        return [None, GameStatus.QUITTING]
     if len(move_pieces_changes) > 1:
         cheating_flag = True
     if len(move_squares_changes) > 1:
@@ -135,11 +137,11 @@ def determine_move(pre_game_state, post_game_state):
     if post_game_state_squares[move_squares_changes[0]] != pre_game_state.get_current_piece():
         cheating_flag = True
     if cheating_flag == True:
-        notify("Cheating mat have been detected.") # reserves functionality to break or whatever
+        notify("Cheating may have been detected.") # reserves functionality to break or whatever
     move_row = move_squares_changes[0] / 4
     move_column = move_squares_changes[0] % 4
     move.set_move(move_row, move_column, move_pieces_changes[0])
-    return move
+    return [move, GameStatus.PLAYING]
     
 class HostData():
     HALT_SERVER = -1
@@ -204,13 +206,15 @@ def connect_to_host(player):
     notify('Connected to host!')
     return connection_to_host
     
-def signal_host_game_over(player, game_status):
-    data_send('$$GAMEOVER$$' + str(game_status), player.connection)
+def signal_host_game_over(player, game_state):
+    game_state_string = format_game_data(game_state)
+    data_send(game_state_string, player.connection)
     player.connection.close()
 
-def signal_client_game_over(player, game_status):
+def signal_client_game_over(player, game_state):
     global server_host_database
-    server_host_database.game_state_string = '$$GAMEOVER$$' + str(game_status)
+    game_state_string = format_game_data(game_state)
+    server_host_database.game_state_string = game_state_string
     server_host_database.player_turn = HostData.SIGNAL_GAME
     
 def get_network_host_move(game_state, connection):
@@ -221,8 +225,8 @@ def get_network_host_move(game_state, connection):
     if new_game_state_string[0:12] == '$$GAMEOVER$$':
         return ['null', int(new_game_state_string[12:])]
     new_game_state = rebuild_game_data(new_game_state_string)
-    new_move = determine_move(game_state, new_game_state)
-    return [new_move, GameStatus.PLAYING]
+    [new_move, game_state] = determine_move(game_state, new_game_state)
+    return [new_move, game_state]
     
 def get_network_client_move(game_state):
     global server_host_database
@@ -234,6 +238,6 @@ def get_network_client_move(game_state):
     if server_host_database.game_state_string[0:12] == '$$GAMEOVER$$':
         return ['null', int(server_host_database.game_state_string[12:])]
     new_game_state = rebuild_game_data(server_host_database.game_state_string)
-    move = determine_move(game_state, new_game_state)
-    return [move, GameStatus.PLAYING]
+    [move, game_state] = determine_move(game_state, new_game_state)
+    return [move, game_state]
     

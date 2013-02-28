@@ -98,9 +98,9 @@ def signal_bad_move(move, move_status, current_player):
 
 
 # Signal end of game and ask if they want to play another
-def signal_end_of_game(game_status, player_1, player_2):
-    player_1.game_over(game_status)
-    player_2.game_over(game_status)
+def signal_end_of_game(game_status, game_state, player_1, player_2):
+    player_1.game_over(game_state)
+    player_2.game_over(game_state)
     if game_status == GameStatus.QUITTING:
         print "Game over - player quitting."
     elif game_status == GameStatus.TIE:

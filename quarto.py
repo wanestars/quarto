@@ -44,6 +44,6 @@ def quarto():
             else:
                 turn_player = player_2
 
-        signal_end_of_game(game_status, player_1, player_2)
+        signal_end_of_game(game_status, game_state, player_1, player_2)
 
 quarto()
