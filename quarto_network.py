@@ -130,8 +130,12 @@ def determine_move(pre_game_state, post_game_state):
             cheating_flag = True
     if len(move_squares_changes) == 0 and len(move_pieces_changes)==0:
         return [None, GameStatus.QUITTING]
-    if len(move_pieces_changes) > 1:
+    elif len(move_pieces_changes) == 0:
+		new_piece = 0
+    elif len(move_pieces_changes) > 1:
         cheating_flag = True
+    elif len(move_pieces_changes) == 1:
+		new_piece = move_pieces_changes[0]
     if len(move_squares_changes) > 1:
         cheating_flag = True
     if post_game_state_squares[move_squares_changes[0]] != pre_game_state.get_current_piece():
@@ -140,7 +144,7 @@ def determine_move(pre_game_state, post_game_state):
         notify("Cheating may have been detected.") # reserves functionality to break or whatever
     move_row = move_squares_changes[0] / 4
     move_column = move_squares_changes[0] % 4
-    move.set_move(move_row, move_column, move_pieces_changes[0])
+    move.set_move(move_row, move_column, new_piece)
     return [move, GameStatus.PLAYING]
     
 class HostData():
