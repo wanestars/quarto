@@ -110,9 +110,11 @@ def check_pieces_for_win(p1, p2, p3, p4):
 # 2) the selected piece needs to be available - unused at the moment
 #        - the one exception is if all pieces have been placed
 # If the move is legal, it then looks for a win, tie, or end of game condition
-def check_move(game_state, move):
+def check_move(main_game_state, move):
     row = move.get_row_placement()
     col = move.get_col_placement()
+    #create copy so we don't disrupt anything when testing moves
+    game_state = copy_game_state(main_game_state) 
     piece_to_move = game_state.get_current_piece()
     new_piece_to_move = move.get_piece()
     availability = game_state.get_available_pieces()
@@ -125,8 +127,7 @@ def check_move(game_state, move):
     # See if there is a win - if so, don't check new_piece_to_move
     squares = game_state.get_squares()
     squares[4*row + col] = piece_to_move # make the move so we can analyze the board
-    for i in range(10):
-        places = GameMove.LINES[i]
+    for places in GameMove.LINES:
         if check_pieces_for_win(squares[places[0]], squares[places[1]],
                                 squares[places[2]], squares[places[3]]):
             game_state.set_square_piece(row, col, GameState.EMPTY)
@@ -145,3 +146,15 @@ def check_move(game_state, move):
         # this is legal, but there are no moves left - so it is a tie
         return [MoveStatus.LEGAL_MOVE, GameStatus.TIE]
     return [MoveStatus.LEGAL_MOVE, GameStatus.PLAYING]
+
+def copy_game_state(game_state):
+    new_game_state = GameState()
+    new_game_state.set_current_piece(game_state.get_current_piece())
+    piece_list = game_state.get_available_pieces()
+    square_list = game_state.get_squares()
+    for piece in range(16):
+        if(piece_list[piece] == GameState.UNAVAILABLE):
+            new_game_state.remove_available_piece(piece)
+        if(square_list[piece] != GameState.EMPTY):
+            new_game_state.set_square_piece(piece/4,piece%4,square_list[piece])
+    return new_game_state
