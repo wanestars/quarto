@@ -226,8 +226,6 @@ def get_network_host_move(game_state, connection):
     data_send(game_string, connection)
     notify("Waiting for host to move...")
     new_game_state_string = data_receive(connection)
-    if new_game_state_string[0:12] == '$$GAMEOVER$$':
-        return ['null', int(new_game_state_string[12:])]
     new_game_state = rebuild_game_data(new_game_state_string)
     [new_move, game_state] = determine_move(game_state, new_game_state)
     return [new_move, game_state]
@@ -239,8 +237,6 @@ def get_network_client_move(game_state):
     notify("Waiting for Client to move...")
     while server_host_database.player_turn == HostData.CLIENT_MOVE:
         sleep(1)
-    if server_host_database.game_state_string[0:12] == '$$GAMEOVER$$':
-        return ['null', int(server_host_database.game_state_string[12:])]
     new_game_state = rebuild_game_data(server_host_database.game_state_string)
     [move, game_state] = determine_move(game_state, new_game_state)
     return [move, game_state]
