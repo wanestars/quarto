@@ -1,5 +1,5 @@
 # quarto game - text interface
-# Sean Straw
+# Sean Straw & Ari Cohen
 
 import string          
 from quarto_state import *
@@ -19,7 +19,8 @@ def make_matrix(row, column, default_value):
 
 # Display available pieces, piece to move, and the board
 def display_game_state(game_state):
-    name = list('STAN')
+    begin_name = list('SEAN')
+    end_name = list('STAN')
     available_pieces = game_state.get_available_pieces()
     square_pieces = game_state.get_squares()
     current_piece = binary(game_state.get_current_piece())
@@ -41,13 +42,13 @@ def display_game_state(game_state):
     print ' '
     for row in range(len(printed_pieces)):
         if row == 1: # Shows current piece on one row
-            print (' ' * 4 + ' '.join(printed_pieces[row]) + # Left side
+            print (begin_name[row] + ' ' * 4 + ' '.join(printed_pieces[row]) + # Left side
                    ' ' * 4 + current_piece + ' ' * 4 +       # Middle
-                   ' '.join(board[row]) + ' ' + name[row])   # Right
+                   ' '.join(board[row]) + ' ' + end_name[row])   # Right
         else:
-            print (' ' * 4 + ' '.join(printed_pieces[row]) + 
+            print (begin_name[row] + ' ' * 4 + ' '.join(printed_pieces[row]) + 
                    ' ' * 12 +  
-                   ' '.join(board[row]) + ' ' + name[row])
+                   ' '.join(board[row]) + ' ' + end_name[row])
     
 # This combines making the move and displaying the board
 # in case some animation is desired
@@ -61,9 +62,20 @@ def make_move_and_display(game_state, move):
 # Return information as text and numbers
 #   This function returns either "h" or "c" as appropriate
 def get_players_information():
-    data0 = raw_input('Is Player 1 human, computer, or network? (h/c/n)')
-    data1 = raw_input('Is Player 2 human, computer, or network? (h/c/n)')
-    return [data0, data1]
+    data = []
+    for counter in range(2):
+        level = 0
+        player = raw_input('Is Player 1 human, computer, or network? (h/c/n)')
+        if player == "c":
+            while(True):
+                level0 = raw_input('Enter Computer Level (1-3)')
+                try:
+                    level0 = int(level0)
+                except:
+                    continue
+                break
+        data.extend([player, level0])
+    return data
 
 def get_bound_integer_input(prompt_string, lower, upper):
     while True:

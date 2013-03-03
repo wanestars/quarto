@@ -1,4 +1,4 @@
-# Sean Straw
+# Sean Straw & Ari Cohen
 
 from quarto_interface import *
 from quarto_player import *

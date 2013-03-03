@@ -1,4 +1,5 @@
 # quarto game - game state classes
+# Sean Straw & Ari Cohen
 
 import random  # used for creating random moves
 from quarto_interface import *  # maybe split Board into logical info and display info?

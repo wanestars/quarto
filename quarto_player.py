@@ -1,5 +1,5 @@
 # quarto game - move generators and checkers
-# Sean Straw
+# Sean Straw & Ari Cohen
 
 import random  # used for creating random moves
 from quarto_interface import *
@@ -12,6 +12,9 @@ class GamePlayer():
     COMPUTER = 1
     NETWORK_HOST = 2
     NETWORK_CLIENT = 3
+
+    MAXIMIZE = 1
+    MINIMIZE = -1
     
     def __init__(self):
         self.type = GamePlayer.HUMAN
@@ -20,6 +23,9 @@ class GamePlayer():
 
     def get_type(self):
         return self.type
+
+    def set_level(self, level):
+        self.level = level
     
     def game_over(self, game_status):
         if self.type == self.NETWORK_HOST:
@@ -45,7 +51,7 @@ class GamePlayer():
         elif self.type == GamePlayer.NETWORK_CLIENT:
             return get_network_client_move(game_state)
         else:
-            return get_computer_move(game_state)
+            return get_computer_move(game_state, self.level)
 
 # For each player, this should set
 #   1) human, computer, network
@@ -54,43 +60,27 @@ def get_players_info(player0, player1):
     players = [player0, player1]
     data = get_players_information()
     for index in range(2):
-        if data[index] == "h":
+        if data[index*2] == "h":
             players[index].set_type(GamePlayer.HUMAN)
-        elif index == 0 and data[index] == 'n':
+        elif index == 0 and data[index*2] == 'n':
             players[index].set_type(GamePlayer.NETWORK_HOST)
-        elif index == 1 and data[index] == 'n':
+        elif index == 1 and data[index*2] == 'n':
             players[index].set_type(GamePlayer.NETWORK_CLIENT)
         else:
             players[index].set_type(GamePlayer.COMPUTER)
+            players[index].set_level((index*2)+1)
     return
 
-# This first version will move randomly - someday this will be level 0 play
-##def get_computer_move(game_state):
-##    available_pieces = game_state.get_available_pieces()
-##    squares = game_state.get_squares()
-##    possible_move = list()
-##    possible_piece = list()
-##    for piece in range(len(available_pieces)):
-##        if available_pieces[piece] == GameState.AVAILABLE:
-##            possible_piece.append(piece)
-##    for move in range(len(squares)):
-##        if squares[move] == GameState.EMPTY:
-##            possible_move.append(move)
-##    if len(possible_piece) == 0:
-##        next_piece = -1
-##    else:
-##        next_piece = random.choice(possible_piece)
-##    next_move = random.choice(possible_move)
-##    next_move_row = next_move / 4
-##    next_move_col = next_move % 4
-##    computer_move = GameMove()
-##    computer_move.set_move(next_move_row, next_move_col, next_piece)
-##    return [computer_move, GameStatus.PLAYING]
+def get_computer_move(game_state, level):
+    if level == 1:
+        return get_random_move(game_state)
+    else if level == 2:
+        return simple_move_test(game_state)
+    else if level == 3:
+        depth = len(get_good_pieces_and_squares(game_state)[0])
+    return test_moves(game_state, depth, GameState.MAXIMIZE, depth)
 
-def get_computer_move(game_state):
-    return test_moves(game_state)
-
-def test_moves(game_state):
+def test_moves(game_state, depth, minimax, initial_depth):
     good_pieces, good_squares = get_good_pieces_and_squares(game_state)
     good_moves = []
     for piece in good_pieces:
@@ -108,7 +98,7 @@ def test_moves(game_state):
     if(len(good_moves) != 0):
         return [random.choice(good_moves), GameStatus.PLAYING]
     else:
-        print "Well Done"
+        notify("Well Done")
         return get_random_move(game_state)
 
 def test_opponent_moves(game_state):
@@ -116,7 +106,6 @@ def test_opponent_moves(game_state):
     test_game_state = copy_game_state(game_state)
     for piece in good_pieces:
         for square in good_squares:
-            move_count = 0
             test_game_state = copy_game_state(game_state)
             test_move = GameMove()
             test_move.set_move(square[0],square[1],piece)

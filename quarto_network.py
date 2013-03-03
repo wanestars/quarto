@@ -1,7 +1,7 @@
 # Quarto Network
 # Hosts functions to get and recieve moves over network as well as
 # transferring data.
-# Sean Straw
+# Sean Straw & Ari Cohen
 
 import threading
 import SocketServer
