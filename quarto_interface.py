@@ -64,7 +64,7 @@ def make_move_and_display(game_state, move):
 def get_players_information():
     data = []
     for counter in range(2):
-        level = 0
+        level0 = 0
         player = raw_input('Is Player 1 human, computer, or network? (h/c/n)')
         if player == "c":
             while(True):

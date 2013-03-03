@@ -68,51 +68,54 @@ def get_players_info(player0, player1):
             players[index].set_type(GamePlayer.NETWORK_CLIENT)
         else:
             players[index].set_type(GamePlayer.COMPUTER)
-            players[index].set_level((index*2)+1)
+            players[index].set_level(data[(index*2)+1])
     return
 
 def get_computer_move(game_state, level):
-    if level == 1:
+    #First move doesn't matter, might as well not keep user waiting...
+    print level
+    if (len(get_good_pieces_and_squares(game_state)[1]) == 16) or (level == 1):
         return get_random_move(game_state)
-    else if level == 2:
-        return simple_move_test(game_state)
-    else if level == 3:
-        depth = len(get_good_pieces_and_squares(game_state)[0])
-    return test_moves(game_state, depth, GameState.MAXIMIZE, depth)
 
-def test_moves(game_state, depth, minimax, initial_depth):
+    good_moves = simple_move_test(game_state, GamePlayer.MAXIMIZE)
+    if(len(good_moves) != 0):
+        if (level == 2):
+            return [random.choice(good_moves), GameStatus.PLAYING]
+        elif (level == 3):
+            #Here's where I'd do more with good_moves (look further)
+            #For now just do the same as level 2
+            return [random.choice(good_moves), GameStatus.PLAYING]
+    else:
+        #No possible moves that won't let opponent win
+        notify("Well Done")
+        return get_random_move(game_state)
+    
+    #depth = len(get_good_pieces_and_squares(game_state)[0])
+    #return test_moves(game_state, depth, GamePlayer.MAXIMIZE, depth)
+
+def simple_move_test(game_state, minimax):
     good_pieces, good_squares = get_good_pieces_and_squares(game_state)
     good_moves = []
     for piece in good_pieces:
         for square in good_squares:
-            test_game_state = copy_game_state(game_state)
-            test_move = GameMove()
-            test_move.set_move(square[0],square[1],piece)
-            move_state = check_move(test_game_state, test_move)
+            comp_game_state = copy_game_state(game_state)
+            comp_move = GameMove()
+            comp_move.set_move(square[0],square[1],piece)
+            move_state = check_move(comp_game_state, comp_move)
             if(move_state[1] == GameStatus.WIN):
-                return [test_move, GameStatus.WIN]
-            test_game_state.make_move(test_move)
-            opponent_moves = test_opponent_moves(test_game_state)
-            if(opponent_moves != GameStatus.WIN):
-                good_moves.append(test_move)
-    if(len(good_moves) != 0):
-        return [random.choice(good_moves), GameStatus.PLAYING]
+                if (minimax == GamePlayer.MINIMIZE):
+                    return GameStatus.WIN
+                else:
+                    return [comp_move]
+            elif (minimax == GamePlayer.MAXIMIZE):
+                comp_game_state.make_move(comp_move)
+                opponent_moves = simple_move_test(comp_game_state, GamePlayer.MINIMIZE)
+                if(opponent_moves != GameStatus.WIN):
+                    good_moves.append(comp_move)
+    if (minimax == GamePlayer.MINIMIZE):
+        return GameStatus.PLAYING
     else:
-        notify("Well Done")
-        return get_random_move(game_state)
-
-def test_opponent_moves(game_state):
-    good_pieces, good_squares = get_good_pieces_and_squares(game_state)
-    test_game_state = copy_game_state(game_state)
-    for piece in good_pieces:
-        for square in good_squares:
-            test_game_state = copy_game_state(game_state)
-            test_move = GameMove()
-            test_move.set_move(square[0],square[1],piece)
-            move_state = check_move(test_game_state, test_move)
-            if(move_state[1] == GameStatus.WIN):
-                return GameStatus.WIN
-    return GameStatus.PLAYING
+        return good_moves
 
 def get_random_move(game_state):
     move = GameMove()
