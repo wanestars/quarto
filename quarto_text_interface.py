@@ -1,17 +1,8 @@
-# quarto game - pygame interface
+# quarto game - text interface
 # Sean Straw & Ari Cohen
 
-import pygame, sys
-from pygame.locals import *
 import string          
 from quarto_state import *
-
-pygame.init()
-MAINSURF = pygame.display.set_mode((1000, 600)) #Maybe a little skinnier?
-pygame.display.set_caption('Quarto')
-
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
 
 
 # Gives binary of number as a string
@@ -154,23 +145,3 @@ def get_host_information():
     host_ip = raw_input('What\'s the IP of the host?')
     port = int(raw_input('What\'s the port of the host?'))
     return [host_ip, port]
-
-while True: # main game loop
-    MAINSURF.fill(WHITE) #wipe surface clean for redraw
-    for event in pygame.event.get():
-        if(event.type == QUIT):
-            pygame.quit()
-            sys.exit()
-        elif(event.type == KEYDOWN):
-            key_map = pygame.key.get_pressed()
-            #key_down stuff here
-            pass
-        elif(event.type == MOUSEMOTION):
-            #use this for changing color of buttons
-            #check_mouse_pos()
-            pass
-        elif(event.type == MOUSEBUTTONDOWN):
-            #use this for dragging and dropping pieces (and button clicks)
-            #mouse_click()
-            pass
-    pygame.display.update()
